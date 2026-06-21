@@ -6,6 +6,7 @@ export function PayrollPage({ onSettled }) {
   const [month, setMonth] = useState(currentMonth());
   const [rows, setRows] = useState([]);
   const [message, setMessage] = useState("");
+  const [settlingTeacherId, setSettlingTeacherId] = useState(null);
 
   const load = async () => {
     const data = await api.payroll(month);
@@ -17,7 +18,9 @@ export function PayrollPage({ onSettled }) {
   }, [month]);
 
   const settle = async (teacherId) => {
+    if (settlingTeacherId === teacherId) return;
     setMessage("");
+    setSettlingTeacherId(teacherId);
     try {
       await api.settlePayroll({ teacher_id: teacherId, month });
       await load();
@@ -25,6 +28,8 @@ export function PayrollPage({ onSettled }) {
       setMessage("已标记结算");
     } catch (error) {
       setMessage(error.message);
+    } finally {
+      setSettlingTeacherId(null);
     }
   };
 
@@ -56,8 +61,13 @@ export function PayrollPage({ onSettled }) {
             {row.status === "settled" ? (
               <span className="status-pill">已结算</span>
             ) : (
-              <button className="small-button" type="button" onClick={() => settle(row.teacher_id)}>
-                标记结算
+              <button
+                className="small-button"
+                type="button"
+                disabled={settlingTeacherId === row.teacher_id}
+                onClick={() => settle(row.teacher_id)}
+              >
+                {settlingTeacherId === row.teacher_id ? "结算中..." : "标记结算"}
               </button>
             )}
           </div>

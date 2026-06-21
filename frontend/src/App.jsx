@@ -23,22 +23,20 @@ export function App() {
     teachers: [],
     attendance: [],
     reminders: [],
-    renewals: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const refresh = async () => {
     setError("");
-    const [dashboard, students, teachers, attendance, reminders, renewals] = await Promise.all([
+    const [dashboard, students, teachers, attendance, reminders] = await Promise.all([
       api.dashboard(),
       api.students(),
       api.teachers(),
       api.attendance(),
       api.reminders(),
-      api.renewals(),
     ]);
-    setData({ dashboard, students, teachers, attendance, reminders, renewals });
+    setData({ dashboard, students, teachers, attendance, reminders });
   };
 
   useEffect(() => {
@@ -73,7 +71,7 @@ export function App() {
               />
             )}
             {activePage === "students" && (
-              <StudentsPage students={data.students} reminders={data.reminders} renewals={data.renewals} onCreated={refresh} />
+              <StudentsPage students={data.students} reminders={data.reminders} onCreated={refresh} />
             )}
             {activePage === "payroll" && <PayrollPage onSettled={refresh} />}
           </>
